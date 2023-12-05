@@ -41,7 +41,7 @@ class User < ApplicationRecord
   # Userはたくさんのarticleを持っています(User has many Articles.)
   # Userはたくさんのcommentを持っています(User has many comments.)
   # Userはたくさんのarticle_likeを持っています(User has many article_likes.)
-  has_many :articles
-  has_many :comments
-  has_many :article_likes
+  has_many :articles, dependent: :destroy
+  has_many :comments, dependent: :destroy
+  has_many :article_likes, dependent: :destroy
 end

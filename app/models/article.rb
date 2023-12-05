@@ -14,8 +14,8 @@ class Article < ApplicationRecord
   belongs_to :user
 
   # ArticleはたくさんのCommentを持っています(Article has many Comments.)
-  has_many :Comments
+  has_many :comments, dependent: :destroy
 
   # ArticleはたくさんのCommentを持っています(Article has many article_likes.)
-  has_many :article_likes
+  has_many :article_likes, dependent: :destroy
 end
