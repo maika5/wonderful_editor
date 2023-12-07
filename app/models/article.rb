@@ -18,4 +18,6 @@ class Article < ApplicationRecord
 
   # ArticleはたくさんのCommentを持っています(Article has many article_likes.)
   has_many :article_likes, dependent: :destroy
+
+  validates :title, :body, presence: true
 end
