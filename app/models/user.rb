@@ -44,4 +44,7 @@ class User < ApplicationRecord
   has_many :articles, dependent: :destroy
   has_many :comments, dependent: :destroy
   has_many :article_likes, dependent: :destroy
+
+  # presence(空でないことを確認)追加
+  validates :name, presence: true
 end
