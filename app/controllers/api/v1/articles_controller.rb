@@ -1,6 +1,7 @@
 # module Api::V1　は　config/routes.rb　で　URLが　/api/v1/articlesになるように設定
 module Api::V1
   class ArticlesController < BaseApiController
+    before_action :authenticate_user!, only: [:create, :update, :destroy]
     def index
       # orderメソッド　(updated_at: :desc)  は記事を更新日順（昇順）
       articles = Article.order(updated_at: :desc)

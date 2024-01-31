@@ -23,11 +23,11 @@ RSpec.describe "Api::V1::Articles", type: :request do
   describe "GET /articles/:id" do
     subject { get(api_v1_article_path(article_id)) }
 
-    context "指定した id の記事があるとき" do
+    context "指定した id の記事が存在する場合" do
       let(:article) { create(:article) }
       let(:article_id) { article.id }
 
-      it "指定したidの記事が取得できる" do
+      it "任意の記事の値が取得できる" do
         subject
         res = JSON.parse(response.body)
 
@@ -41,59 +41,46 @@ RSpec.describe "Api::V1::Articles", type: :request do
       end
     end
 
-    context "指定した id の記事がないとき" do
-      let(:article_id) { 100000 }
+    context "指定した id の記事が存在しない場合" do
+      let(:article_id) { 10000 }
 
-      it "記事見つからない" do
+      it "記事が見つからない" do
         expect { subject }.to raise_error ActiveRecord::RecordNotFound
       end
     end
   end
 
   describe "POST /articles" do
-    subject { post(api_v1_articles_path, params: params) }
+    subject { post(api_v1_articles_path, params: params, headers: headers) }
 
-    context "適切なパラメーターを送信したとき" do
-      let(:params) do
-        { article: attributes_for(:article) }
-      end
-      let(:current_user) { create(:user) }
+    let(:params) { { article: attributes_for(:article) } }
+    let(:current_user) { create(:user) }
 
-      before do
-        # allow_any_instance_ofメソッド　は
-        # Api::V1::BaseApiControllerクラスのインスタンスに対するスタブ（モック）を設定
-        allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
-      end
+    let(:headers) { current_user.create_new_auth_token }
 
-      it "記事作成できる" do
-        expect { subject }.to change { Article.count }.by(1)
-        res = JSON.parse(response.body)
-        expect(res["title"]).to eq params[:article][:title]
-        expect(res["body"]).to eq params[:article][:body]
-        expect(response).to have_http_status(:ok)
-      end
+    it "記事のレコードが作成できる" do
+      expect { subject }.to change { Article.where(user_id: current_user.id).count }.by(1)
+      res = JSON.parse(response.body)
+      expect(res["title"]).to eq params[:article][:title]
+      expect(res["body"]).to eq params[:article][:body]
+      expect(response).to have_http_status(:ok)
     end
   end
 
-  describe "PATCH(PUT) api/v1/articles/:id" do
-    subject { patch(api_v1_article_path(article.id), params: params) }
+  describe "PATCH /api/v1/articles/:id" do
+    subject { patch(api_v1_article_path(article.id), params: params, headers: headers) }
 
-    let(:params) do
-      { article: attributes_for(:article) }
-    end
+    let(:params) { { article: attributes_for(:article) } }
     let(:current_user) { create(:user) }
 
-    before do
-      allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
-    end
+    let(:headers) { current_user.create_new_auth_token }
 
     context "適切なパラメーターを送信したとき" do
       let(:article) { create(:article, user: current_user) }
 
-      it "記事更新できる" do
+      it "記事を更新できる" do
         expect { subject }.to change { article.reload.title }.from(article.title).to(params[:article][:title]) &
                               change { article.reload.body }.from(article.body).to(params[:article][:body])
-        expect(response).to have_http_status(:ok)
         expect(response).to have_http_status(:ok)
       end
     end
@@ -108,20 +95,17 @@ RSpec.describe "Api::V1::Articles", type: :request do
     end
   end
 
-  describe "DELETE/ articles/:id" do
-    subject { delete(api_v1_article_path(article.id)) }
+  describe "DELETE /articles/:id" do
+    subject { delete(api_v1_article_path(article.id), headers: headers) }
 
     let(:current_user) { create(:user) }
     let(:article_id) { article.id }
-
-    before do
-      allow_any_instance_of(Api::V1::BaseApiController).to receive(:current_user).and_return(current_user)
-    end
+    let(:headers) { current_user.create_new_auth_token }
 
     context "任意の記事を削除しようとするとき" do
       let!(:article) { create(:article, user: current_user) }
 
-      it "任意の記事を削除できる" do
+      it "記事を削除できる" do
         expect { subject }.to change { Article.count }.by(-1)
         expect(response).to have_http_status(:ok)
       end
