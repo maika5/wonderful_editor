@@ -4,6 +4,7 @@
 #
 #  id         :bigint           not null, primary key
 #  body       :text
+#  status     :string           default(NULL)
 #  title      :string
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
@@ -20,4 +21,8 @@ class Article < ApplicationRecord
   has_many :article_likes, dependent: :destroy
 
   validates :title, :body, presence: true
+
+  # 0が「draft」、1が「published」で操作／参照できるようになる
+  # 公開済み(published) / 下書き(draft)
+  enum status: { published: 0, draft: 1 }
 end
