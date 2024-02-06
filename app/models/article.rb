@@ -24,5 +24,5 @@ class Article < ApplicationRecord
 
   # 0が「draft」、1が「published」で操作／参照できるようになる
   # 公開済み(published) / 下書き(draft)
-  enum status: { published: 0, draft: 1 }
+  enum status: { draft: 0, published: 1 }
 end
