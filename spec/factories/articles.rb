@@ -18,11 +18,11 @@ FactoryBot.define do
     # userはuserファクトリーがあるのでここではfaker記載不要　
 
     trait :draft do
-      status { 1 }
+      status { :draft }
     end
 
     trait :published do
-      status { 0 }
+      status { :published }
     end
   end
 end
